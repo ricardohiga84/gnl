@@ -3,11 +3,12 @@
 
 char	*split_accumulator(char *accumulator)
 {
-	int		count;
 	char	*current_line;
-	//char	*next_line;
+	char	*next_line;
+	int		count;
+	// int		line;
 
-	current_line = malloc(sizeof(accumulator + 2));
+	// current_line = malloc(1);
 	count = 0;
 	while (accumulator[count] && accumulator[count] != '\n')
 	{
@@ -15,8 +16,10 @@ char	*split_accumulator(char *accumulator)
 		count++;
 	}
 	current_line[count] = '\n';
-	current_line[count + 1] = '\0';
-	//printf("%s", current_line);
+	next_line = ft_strchr(accumulator, '\n');
+	accumulator = next_line;
+	// printf("current_line: %s\n", current_line);
+	printf("accumulator split: %s\n", accumulator);
 	return (current_line);
 }
 
@@ -24,36 +27,37 @@ char	*read_buffer(int fd, char *accumulator)
 {
 	char	*current_buffer;
 	int		file_return;
-	int		i = 1; //TESTE
+	int		i; //APAGAR!!
 
 	current_buffer = malloc(BUFFER_SIZE + 1);
-	current_buffer = accumulator;
+	// current_buffer = accumulator;
 	file_return = 1;
+	i = 0;
 	while (!ft_strchr(accumulator, '\n') && file_return > 0)
 	{
 		accumulator = ft_strjoin(accumulator, current_buffer);
 		file_return = read(fd, current_buffer, BUFFER_SIZE);
-		//current_buffer[file_return] = '\0';
-		//printf("buffer %i: %s\n", i, current_buffer);
-		//printf("accumulator: %s\n", accumulator);
+		current_buffer[file_return] = '\0';
+		// printf("accumulator: %s\n", accumulator);
 		i++;
 	}
+	free(current_buffer);
 	return (accumulator);
 }
 
 char	*get_next_line(int fd)
 {
-	char	*accumulator;
-	char	*line;
+	static char	*accumulator;
+	char		*line;
 	
 	if (fd == -1 || BUFFER_SIZE <= 0)
 		return (NULL);
-	accumulator = malloc(BUFFER_SIZE + 1);
+		if (!accumulator)
+		accumulator = malloc(BUFFER_SIZE + 1);
 	if (!accumulator)
 		return (NULL);
 	accumulator = read_buffer(fd, accumulator);
-	//printf("accumulator: %s\n", accumulator);
-	//line = malloc(sizeof(accumulator) + 2);
 	line = split_accumulator(accumulator);
+	// printf("accumulator gnl: %s\n", accumulator);
 	return (line);
 }

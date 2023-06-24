@@ -5,7 +5,7 @@ char	*ft_strchr(const char *str, int c)
 	while (*str)
 	{
 		if (*str == (char)c)
-			return ((char *)str);
+			return ((char *)str + 1);
 		str++;
 	}
 	if (c == 0)

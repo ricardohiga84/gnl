@@ -7,14 +7,20 @@ int	main (void)
 	int		fd;
 	char	*line;
 	int		loop;
+	int		i;
 
 	fd = open("test.txt", O_RDONLY);
-	loop = 3;
-	while (loop > 0)	
+
+	// line = get_next_line(fd);
+	// printf("%s", line);
+
+	loop = 2;
+	i = 1;
+	while (i <= loop)
 	{
+		printf("--- call %i ---\n", i);
 		line = get_next_line(fd);
-		printf("%s", line);
-		loop--;
+		i++;
 	}
 	return (0);
 }
