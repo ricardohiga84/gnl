@@ -1,47 +1,76 @@
 #include "get_next_line.h"
 #include <stdio.h> //APAGAR!!!
 
-char	*split_accumulator(char *accumulator)
+char	*save_next_line(char *accumulator)
 {
-	char	*current_line;
 	char	*next_line;
-	int		count;
-	// int		line;
+	size_t	count_acc;
+	size_t	count_next_line;
 
-	// current_line = malloc(1);
-	count = 0;
-	while (accumulator[count] && accumulator[count] != '\n')
+	count_acc = 0;
+	count_next_line = 0;
+	while (accumulator[count_acc] != '\n' && accumulator[count_acc])
+		count_acc++;
+	if (!accumulator[count_acc])
 	{
-		current_line[count] = accumulator[count];
-		count++;
+		free(accumulator);
+		return (NULL);
 	}
-	current_line[count] = '\n';
-	next_line = ft_strchr(accumulator, '\n');
-	accumulator = next_line;
-	// printf("current_line: %s\n", current_line);
-	printf("accumulator split: %s\n", accumulator);
-	return (current_line);
+	next_line = ft_calloc(ft_strlen(accumulator) - count_acc + 1, sizeof(char));
+	count_acc++;
+	while (accumulator[count_acc])
+		next_line[count_next_line++] = accumulator[count_acc++];
+	free(accumulator);
+	return (next_line);
+}
+
+char	*get_current_line(char *accumulator)
+{
+	char	*line;
+	size_t	count;
+
+	count = 0;
+	if (!accumulator[count])
+		return (NULL);
+	while (accumulator[count] != '\n' && accumulator[count])
+		count++;
+	line = ft_calloc(count + 2, sizeof(char));
+	count = 0;
+	while (*accumulator != '\n' && *accumulator)
+		line[count++] = *accumulator++;
+	if (*accumulator == '\n')
+		line[count] = '\n';
+	return (line);
 }
 
 char	*read_buffer(int fd, char *accumulator)
 {
-	char	*current_buffer;
-	int		file_return;
-	int		i; //APAGAR!!
+	char	*buffer;
+	char	*temp_buffer;
+	ssize_t	read_bytes;
 
-	current_buffer = malloc(BUFFER_SIZE + 1);
-	// current_buffer = accumulator;
-	file_return = 1;
-	i = 0;
-	while (!ft_strchr(accumulator, '\n') && file_return > 0)
+	if (!accumulator)
+		accumulator = ft_calloc(1, sizeof(char));
+	temp_buffer = accumulator;
+	buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	read_bytes = 1;
+	while (!ft_strchr(accumulator, '\n') && read_bytes > 0)
 	{
-		accumulator = ft_strjoin(accumulator, current_buffer);
-		file_return = read(fd, current_buffer, BUFFER_SIZE);
-		current_buffer[file_return] = '\0';
-		// printf("accumulator: %s\n", accumulator);
-		i++;
+		read_bytes = read(fd, buffer, BUFFER_SIZE);
+		if (read_bytes == -1)
+		{
+			free(buffer);
+			free(temp_buffer);
+			return(NULL);
+		}
+		if (read_bytes == 0)
+			break;
+		buffer[read_bytes] = '\0';
+		temp_buffer = accumulator;
+		accumulator = ft_strjoin(temp_buffer, buffer);
+		free(temp_buffer);
 	}
-	free(current_buffer);
+	free(buffer);
 	return (accumulator);
 }
 
@@ -52,12 +81,10 @@ char	*get_next_line(int fd)
 	
 	if (fd == -1 || BUFFER_SIZE <= 0)
 		return (NULL);
-		if (!accumulator)
-		accumulator = malloc(BUFFER_SIZE + 1);
+	accumulator = read_buffer(fd, accumulator);
 	if (!accumulator)
 		return (NULL);
-	accumulator = read_buffer(fd, accumulator);
-	line = split_accumulator(accumulator);
-	// printf("accumulator gnl: %s\n", accumulator);
+	line = get_current_line(accumulator);
+	accumulator = save_next_line(accumulator);
 	return (line);
 }

@@ -14,12 +14,13 @@ int	main (void)
 	// line = get_next_line(fd);
 	// printf("%s", line);
 
-	loop = 2;
+	loop = 3;
 	i = 1;
 	while (i <= loop)
 	{
 		printf("--- call %i ---\n", i);
 		line = get_next_line(fd);
+		printf("line: %s", line);
 		i++;
 	}
 	return (0);
